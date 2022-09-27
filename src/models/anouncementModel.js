@@ -4,7 +4,7 @@ let anouncementSchema = new mongoose.Schema({
     title:{type:String,required:true},
     description:{type:String,required:true},
     file:{type:String},
-    userId:{type:ObjectId,ref:"User"},
+    teacherId:{type:ObjectId,ref:"Teacher"},
     date:{type:Date}
   },
   { timestamps: true })
