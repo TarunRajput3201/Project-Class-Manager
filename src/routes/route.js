@@ -1,45 +1,47 @@
 const express = require("express")
 const router = express.Router()
-const { registerTeacher, teacherLogin, Updateprofile } = require("../controllers/teacherController")
-const { registerStudent, studentLogin, Updateprofile } = require("../controllers/studentController")
-const { studentAuthentication,teacherAuthentication,studentAuthorization,teacherAuthorization } = require("../middleware/auth")
+const { registerUser, userLogin, Updateprofile } = require("../controllers/userController")
+const { userAuthentication,userAuthorization } = require("../middleware/auth")
+const { createAssignment, getAssignment, updateAssignment,deleteAssignment } = require("../controllers/teacherAssignmentController")
+const { createNote, getNotes, updateNotes ,deleteNotes,getNotesByQuery} = require("../controllers/notesController")
+const { createAnouncement, getAnouncements, updateAnouncement,deleteAnouncement,getAnouncementsByQuery } = require("../controllers/anouncementController")
+const { submitAssignment, getSubmittedAssignments, updateSubmittedAssignment } = require("../controllers/studentAssignmentController")
 
 //==================================STUDENTS REGISTRATION API'S========================================================//
 
-router.post("/register", registerStudent)
-router.post("/login", studentLogin)
-router.put("/student/:studentId/profile", studentAuthentication, Updateprofile)
-
-
-//==================================TEACHERS REGISTRATION API'S========================================================//
-
-router.post("/register", registerTeacher)
-router.post("/login", teacherLogin)
-router.put("/teacher/:teacherId/profile", teacherAuthentication, Updateprofile)
+router.post("/register", registerUser)
+router.post("/login", userLogin)
+router.put("/student/:userId/profile", userAuthentication, Updateprofile)
 
 //=================================TEACHER'S ASSIGNMENT API'S=========================================//
 
-router.post("/teacher/assignment/:teacherId",teacherAuthentication,teacherAuthorization,createAssignment)
-router.get("/teacher/assignment/:teacherId",studentAuthentication,getAssignment)
-router.put("/teacher/assignment/:teacherId",teacherAuthentication,teacherAuthorization,updateAssignment)
+router.post("/teacher/assignment/:userId",userAuthentication,userAuthorization,createAssignment)
+router.get("/teacher/assignment/:userId",userAuthentication,getAssignment)
+router.put("/teacher/assignment/:userId/:assignmentId",userAuthentication,userAuthorization,updateAssignment)
+router.delete("/teacher/assignment/:userId/:assignmentId",userAuthentication,userAuthorization,deleteAssignment)
 
 //=====================================NOTES API'S====================================================//
 
-router.post("/notes/:teacherId",teacherAuthentication,teacherAuthorization,createNote)
-router.get("/notes/:teacherId",studentAuthentication,getNotes)
-router.put("notes/:teacherId",teacherAuthentication,teacherAuthorization,updateNotes)
+router.post("/notes/:userId",userAuthentication,userAuthorization,createNote)
+router.get("/notes/:userId",userAuthentication,getNotes)
+router.get("/notes",userAuthentication,getNotesByQuery)
+router.put("notes/:userId/notesId",userAuthentication,userAuthorization,updateNotes)
+router.delete("notes/:userId/notesId",userAuthentication,userAuthorization,deleteNotes)
 
 //=================================ANOUNCEMENTS API'S==================================================//
 
-router.post("/anouncements/:teacherId",teacherAuthentication,teacherAuthorization,createAnouncement)
-router.get("/anouncements/:teacherId",studentAuthentication,getAnouncements)
-router.put("/anouncements/:teacherId",teacherAuthentication,teacherAuthorization,updateAnouncement)
+router.post("/anouncements/:userId",userAuthentication,userAuthorization,createAnouncement)
+router.get("/anouncements/:userId",userAuthentication,getAnouncements)
+router.get("/anouncements",userAuthentication,getAnouncementsByQuery)
+router.put("/anouncements/:userId/:anouncementId",userAuthentication,userAuthorization,updateAnouncement)
+router.delete("/anouncements/:userId/:anouncementId",userAuthentication,userAuthorization,deleteAnouncement)
 
 //=================================STUDENTS'S ASSIGNMENT API'S=========================================//
 
-router.post("/student/:studentId/assignment/:teacherId",studentAuthentication,studentAuthorization,submitAssignment)
-router.get("/student/:studentId/assignment/:teacherId",studentAuthentication,studentAuthorization,getSubmittedAssignments)
-router.put("/student/:studentId/assignment/:teacherId",studentAuthentication,studentAuthorization,updateSubmittedAssignment)
+router.post("/student/assignment/:userId/:assignmentId",userAuthentication,userAuthorization,submitAssignment)
+router.get("/student/assignment/:userId",userAuthentication,userAuthorization,getSubmittedAssignments)
+router.put("/student/assignment/:userId/:assignmentId",userAuthentication,userAuthorization,updateSubmittedAssignment)
+
 
 //=======================================VALID API=====================================================//
 router.all("/**", function (req, res) {

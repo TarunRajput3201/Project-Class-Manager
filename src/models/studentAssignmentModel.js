@@ -2,8 +2,8 @@ let mongoose = require("mongoose")
 let ObjectId = mongoose.Schema.Types.ObjectId
 let StudentAssignmentSchema = new mongoose.Schema({
      file:{type:String,required:true},
-     comment:{type:String},
-     teacherId:{type:ObjectId,ref:"Teacher"},
+     comment:{type:String,trim:true},
+     userId:{type:ObjectId,ref:"Teacher"},
      dateOfSubmission:{type:Date}
   },
   { timestamps: true })
