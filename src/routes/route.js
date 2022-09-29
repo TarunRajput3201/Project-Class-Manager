@@ -15,9 +15,9 @@ router.put("/student/:userId/profile", userAuthentication, Updateprofile)
 
 //=================================TEACHER'S ASSIGNMENT API'S=========================================//
 
-router.post("/teacher/assignment/:userId",createAssignment)
+router.post("/teacher/assignment/:userId",userAuthentication,userAuthorization,createAssignment)
 router.get("/teacher/assignment/:userId",userAuthentication,getAssignment)
-router.get("/teacher/assignment",getAssignmentByQuery)
+router.get("/teacher/assignment",userAuthentication,getAssignmentByQuery)
 router.put("/teacher/assignment/:userId/:assignmentId",userAuthentication,userAuthorization,updateAssignment)
 router.delete("/teacher/assignment/:userId/:assignmentId",userAuthentication,userAuthorization,deleteAssignment)
 
