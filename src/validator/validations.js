@@ -52,7 +52,7 @@ const validateRequest = function (value) {
 //====================================VALIDATING OBJECTID==================================================//
 
 
-let validateObjectId = function (ObjectId) {
+let isValidObjectId = function (ObjectId) {
   return mongoose.isValidObjectId(ObjectId)
 }
 
@@ -77,14 +77,14 @@ const regexPhoneNumber = function (val) {
 
 
 const isValidPincode = function (val) {
-  return ((typeof val=="number" &&  val.toString().length == 6) || (typeof val=="string" &&val.length == 6))
+  return ((typeof val == "number" && val.toString().length == 6) || (typeof val == "string" && val.length == 6))
 }
 
 
 //====================================VALIDATING 0 IN PINCODE==================================================//
 
-const startWithZero=function(val){
-  return (typeof val=="number" && (val.toString())[0] == "0")|| (typeof val=="string" && val[0] == "0")
+const startWithZero = function (val) {
+  return (typeof val == "number" && (val.toString())[0] == "0") || (typeof val == "string" && val[0] == "0")
 }
 
 //====================================VALIDATING IMAGE EXTENSION==================================================//
@@ -110,19 +110,11 @@ function decNumbers(str) {
 }
 
 
-module.exports = {
-  validateString,
-  validateEmail,
-  validatePassword,
+module.exports = { validateString,
   validateRequest,
-  validateNumber,
-  validateObjectId,
-  passwordLength,
+  validateEmail,
   regexPhoneNumber,
   regxName,
-  isValidPincode,
-  imageExtValidator,
-  onlyWholeNumbers,
-  decNumbers,
-  startWithZero
-};
+  validatePassword,
+  imageExtValidator, 
+  };

@@ -1,9 +1,9 @@
 const notesModel = require("../models/notesModel")
+let { validateString, validateRequest, imageExtValidator } = require("../validator/validations")
 
 
-
-let createNote=async function(req,res){
-    try{
+let createNote = async function (req, res) {
+    try {
         let bodyData = req.body
         let userId = req.params.userId
 
@@ -17,8 +17,8 @@ let createNote=async function(req,res){
         else { dataToBeCreated.title = title }
         if (!validateString(description)) { return res.status(400).send({ status: false, message: "description is required" }) }
         else { dataToBeCreated.description = description }
-        
-        dataToBeCreated.userId=userId
+
+        dataToBeCreated.userId = userId
 
         let file = req.files;
         if (file && file.length > 0) {
@@ -28,19 +28,19 @@ let createNote=async function(req,res){
         } else {
             return res.status(400).send({ status: false, message: "please provide profile image " });
         }
-       
+
 
         let note = await notesModel.create(dataToBeCreated)
 
         res.status(201).send({ status: true, msg: "note created succesfully", data: note })
     }
     catch (error) {
-       return res.status(500).send({ status: false, message: error.message })
-    }   
-    
+        return res.status(500).send({ status: false, message: error.message })
+    }
+
 }
-let getNotes=async function(req,res){
-    try{
+let getNotes = async function (req, res) {
+    try {
         let userId = req.params.userId
         if (!mongoose.isValidObjectId(userId)) { return res.status(400).send({ status: false, msg: "pleade provide valid userId" }) }
 
@@ -49,21 +49,21 @@ let getNotes=async function(req,res){
         res.status(200).send({ status: true, data: notes })
     }
     catch (error) {
-       return res.status(500).send({ status: false, message: error.message })
-    } 
-    
+        return res.status(500).send({ status: false, message: error.message })
+    }
+
 }
-let getNotesByQuery=async function(req,res){
-    try{
+let getNotesByQuery = async function (req, res) {
+    try {
 
     }
     catch (error) {
-       return res.status(500).send({ status: false, message: error.message })
+        return res.status(500).send({ status: false, message: error.message })
     }
-    
+
 }
-let updateNotes=async function(req,res){
-    try{
+let updateNotes = async function (req, res) {
+    try {
         let userId = req.params.userId
         if (!mongoose.isValidObjectId(userId)) { return res.status(400).send({ status: false, msg: "pleade provide valid userid id" }) }
 
@@ -96,17 +96,17 @@ let updateNotes=async function(req,res){
             let uploadedFileURL = await uploadFile(file[0]);
             dataToBeCreated.uploadFile = uploadedFileURL
         }
-        
+
         note.save()
         res.status(200).send({ status: true, msg: "data updated successfully", data: note })
     }
     catch (error) {
-       return res.status(500).send({ status: false, message: error.message })
+        return res.status(500).send({ status: false, message: error.message })
     }
-    
+
 }
-let deleteNotes=async function(req,res){
-    try{
+let deleteNotes = async function (req, res) {
+    try {
         let userId = req.params.userId
         if (!mongoose.isValidObjectId(userId)) { return res.status(400).send({ status: false, msg: "pleade provide valid userid id" }) }
 
@@ -116,15 +116,15 @@ let deleteNotes=async function(req,res){
         let user = await userModel.findById(userId)
         if (user.areYouTeacherOrStudent == Student) { return res.status(403).send({ status: false, msg: "students are not authorized to delete note" }) }
 
-        let note = await teacherAssignmentModel.findOneAndUpdate({ _id: noteId, isDeleted: false },{ $set: { isDeleted: true, deletedAt: new Date } })
+        let note = await teacherAssignmentModel.findOneAndUpdate({ _id: noteId, isDeleted: false }, { $set: { isDeleted: true, deletedAt: new Date } })
         if (!note) { return res.status(403).send({ status: false, msg: "this assignment is already deleted or doesnot exist" }) }
-        
-        res.status(200).send({ status: true, msg: "data deleted successfully"})
-  
+
+        res.status(200).send({ status: true, msg: "data deleted successfully" })
+
     }
     catch (error) {
-       return res.status(500).send({ status: false, message: error.message })
+        return res.status(500).send({ status: false, message: error.message })
     }
-    
+
 }
-module.exports={ createNote, getNotes, updateNotes ,deleteNotes,getNotesByQuery}
+module.exports = { createNote, getNotes, updateNotes, deleteNotes, getNotesByQuery }

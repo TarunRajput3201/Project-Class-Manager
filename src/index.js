@@ -1,7 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const app = express();
-const multer=require("multer")
+const multer = require("multer")
 app.use(multer().any())
 
 app.use(express.json());

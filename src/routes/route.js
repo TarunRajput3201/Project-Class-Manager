@@ -5,7 +5,7 @@ const { userAuthentication,userAuthorization } = require("../middleware/auth")
 const { createAssignment, getAssignment, updateAssignment,deleteAssignment } = require("../controllers/teacherAssignmentController")
 const { createNote, getNotes, updateNotes ,deleteNotes,getNotesByQuery} = require("../controllers/notesController")
 const { createAnouncement, getAnouncements, updateAnouncement,deleteAnouncement,getAnouncementsByQuery } = require("../controllers/anouncementController")
-const { submitAssignment, getSubmittedAssignments, updateSubmittedAssignment } = require("../controllers/studentAssignmentController")
+const { submitAssignment, getSubmittedAssignments,getAllStudentAssignments, updateSubmittedAssignment } = require("../controllers/studentAssignmentController")
 
 //==================================STUDENTS REGISTRATION API'S========================================================//
 
@@ -40,7 +40,8 @@ router.delete("/anouncements/:userId/:anouncementId",userAuthentication,userAuth
 
 router.post("/student/assignment/:userId/:assignmentId",userAuthentication,userAuthorization,submitAssignment)
 router.get("/student/assignment/:userId",userAuthentication,userAuthorization,getSubmittedAssignments)
-router.put("/student/assignment/:userId/:assignmentId",userAuthentication,userAuthorization,updateSubmittedAssignment)
+router.get("/student/assignment/:userId/:studentAssignmentId",userAuthentication,getAllStudentAssignments)
+router.put("/student/assignment/:userId/:studentAssignmentId",userAuthentication,userAuthorization,updateSubmittedAssignment)
 
 
 //=======================================VALID API=====================================================//

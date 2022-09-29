@@ -1,6 +1,6 @@
 const teacherAssignmentModel = require("../models/teacherAssignmentModel")
 let userModel = require("../models/userModel")
-let { validateString, validateRequest, validateObjectId, imageExtValidator } = require("../validator/validations")
+let { validateString, validateRequest, imageExtValidator } = require("../validator/validations")
 let { uploadFile } = require("../controllers/awsController")
 
 
@@ -19,8 +19,8 @@ let createAssignment = async function (req, res) {
         else { dataToBeCreated.title = title }
         if (!validateString(description)) { return res.status(400).send({ status: false, message: "description is required" }) }
         else { dataToBeCreated.description = description }
-        
-        dataToBeCreated.userId=userId
+
+        dataToBeCreated.userId = userId
 
         let file = req.files;
         if (file && file.length > 0) {
@@ -100,9 +100,10 @@ let updateAssignment = async function (req, res) {
         if (bodyData.hasOwnProperty("deadline")) {
             if (validateString(deadline)) {
                 if (teacherAssignmentModel.deadline instanceof Date) {
-                  
-                teacherAssignment.deadline = deadline
-            }}
+
+                    teacherAssignment.deadline = deadline
+                }
+            }
         }
         teacherAssignment.save()
         res.status(200).send({ status: true, msg: "data updated successfully", data: teacherAssignment })
@@ -126,10 +127,10 @@ let deleteAssignment = async function (req, res) {
         let user = await userModel.findById(userId)
         if (user.areYouTeacherOrStudent == Student) { return res.status(403).send({ status: false, msg: "students are not authorized to create assignment" }) }
 
-        let teacherAssignment = await teacherAssignmentModel.findOneAndUpdate({ _id: assignmentId, isDeleted: false },{ $set: { isDeleted: true, deletedAt: new Date } })
+        let teacherAssignment = await teacherAssignmentModel.findOneAndUpdate({ _id: assignmentId, isDeleted: false }, { $set: { isDeleted: true, deletedAt: new Date } })
         if (!teacherAssignment) { return res.status(403).send({ status: false, msg: "this assignment is already deleted or doesnot exist" }) }
-        
-        res.status(200).send({ status: true, msg: "data deleted successfully"})
+
+        res.status(200).send({ status: true, msg: "data deleted successfully" })
 
 
     }

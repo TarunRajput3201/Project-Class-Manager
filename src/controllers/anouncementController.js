@@ -1,7 +1,7 @@
 const anouncementModel = require("../models/anouncementModel")
-
-let createAnouncement=async function(req,res){
-    try{
+let { validateString, validateRequest, imageExtValidator } = require("../validator/validations")
+let createAnouncement = async function (req, res) {
+    try {
         let bodyData = req.body
         let userId = req.params.userId
 
@@ -15,8 +15,8 @@ let createAnouncement=async function(req,res){
         else { dataToBeCreated.title = title }
         if (!validateString(description)) { return res.status(400).send({ status: false, message: "description is required" }) }
         else { dataToBeCreated.description = description }
-       
-        dataToBeCreated.userId=userId
+
+        dataToBeCreated.userId = userId
 
         let file = req.files;
         if (file && file.length > 0) {
@@ -37,12 +37,12 @@ let createAnouncement=async function(req,res){
         res.status(201).send({ status: true, msg: "assignment created succesfully", data: anouncement })
     }
     catch (error) {
-       return res.status(500).send({ status: false, message: error.message })
+        return res.status(500).send({ status: false, message: error.message })
     }
-    
+
 }
-let getAnouncements=async function(req,res){
-    try{
+let getAnouncements = async function (req, res) {
+    try {
         let userId = req.params.userId
         if (!mongoose.isValidObjectId(userId)) { return res.status(400).send({ status: false, msg: "pleade provide valid id" }) }
 
@@ -51,21 +51,21 @@ let getAnouncements=async function(req,res){
         res.status(200).send({ status: true, data: anouncements })
     }
     catch (error) {
-       return res.status(500).send({ status: false, message: error.message })
+        return res.status(500).send({ status: false, message: error.message })
     }
-    
+
 }
-let getAnouncementsByQuery=async function(req,res){
-    try{
+let getAnouncementsByQuery = async function (req, res) {
+    try {
 
     }
     catch (error) {
-       return res.status(500).send({ status: false, message: error.message })
+        return res.status(500).send({ status: false, message: error.message })
     }
-    
+
 }
-let updateAnouncement=async function(req,res){
-    try{
+let updateAnouncement = async function (req, res) {
+    try {
         let userId = req.params.userId
         if (!mongoose.isValidObjectId(userId)) { return res.status(400).send({ status: false, msg: "pleade provide valid userid id" }) }
 
@@ -100,10 +100,11 @@ let updateAnouncement=async function(req,res){
         }
         if (bodyData.hasOwnProperty("date")) {
             if (validateString(date)) {
-                if(anouncementModel.date instanceof Date) {
-                   
-                anouncement.date = date
-            }}
+                if (anouncementModel.date instanceof Date) {
+
+                    anouncement.date = date
+                }
+            }
         }
         anouncement.save()
         res.status(200).send({ status: true, msg: "data updated successfully", data: anouncement })
@@ -111,12 +112,12 @@ let updateAnouncement=async function(req,res){
 
     }
     catch (error) {
-       return res.status(500).send({ status: false, message: error.message })
+        return res.status(500).send({ status: false, message: error.message })
     }
-    
+
 }
-let deleteAnouncement=async function(req,res){
-    try{
+let deleteAnouncement = async function (req, res) {
+    try {
         let userId = req.params.userId
         if (!mongoose.isValidObjectId(userId)) { return res.status(400).send({ status: false, msg: "pleade provide valid userid id" }) }
 
@@ -126,14 +127,14 @@ let deleteAnouncement=async function(req,res){
         let user = await userModel.findById(userId)
         if (user.areYouTeacherOrStudent == Student) { return res.status(403).send({ status: false, msg: "students are not authorized to create assignment" }) }
 
-        let teacherAssignment = await teacherAssignmentModel.findOneAndUpdate({ _id: anouncementId, isDeleted: false },{ $set: { isDeleted: true, deletedAt: new Date } })
+        let teacherAssignment = await teacherAssignmentModel.findOneAndUpdate({ _id: anouncementId, isDeleted: false }, { $set: { isDeleted: true, deletedAt: new Date } })
         if (!teacherAssignment) { return res.status(403).send({ status: false, msg: "this assignment is already deleted or doesnot exist" }) }
-        
-        res.status(200).send({ status: true, msg: "data deleted successfully"})
+
+        res.status(200).send({ status: true, msg: "data deleted successfully" })
     }
     catch (error) {
-       return res.status(500).send({ status: false, message: error.message })
+        return res.status(500).send({ status: false, message: error.message })
     }
-    
+
 }
-module.exports={ createAnouncement, getAnouncements, updateAnouncement,deleteAnouncement,getAnouncementsByQuery } 
+module.exports = { createAnouncement, getAnouncements, updateAnouncement, deleteAnouncement, getAnouncementsByQuery } 
