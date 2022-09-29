@@ -4,7 +4,7 @@ let notesSchema = new mongoose.Schema({
     title:{type:String,required:true},
     description:{type:String,required:true},
     uploadFile:{type:String},
-    userId:{type:ObjectId,ref:"Teacher"},
+    userId:{type:ObjectId,ref:"User"},
     isDeleted:{type:Boolean,default:false},
     deletedAt:{type:Date}
   },
