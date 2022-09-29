@@ -1,7 +1,7 @@
 let mongoose = require("mongoose")
 let ObjectId = mongoose.Schema.Types.ObjectId
 let StudentAssignmentSchema = new mongoose.Schema({
-     file:{type:String,required:true},
+  uploadFile:{type:String,required:true},
      comment:{type:String,trim:true},
      userId:{type:ObjectId,ref:"Teacher"},
      dateOfSubmission:{type:Date}

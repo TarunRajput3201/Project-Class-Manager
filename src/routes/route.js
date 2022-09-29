@@ -25,8 +25,8 @@ router.delete("/teacher/assignment/:userId/:assignmentId",userAuthentication,use
 router.post("/notes/:userId",userAuthentication,userAuthorization,createNote)
 router.get("/notes/:userId",userAuthentication,getNotes)
 router.get("/notes",userAuthentication,getNotesByQuery)
-router.put("notes/:userId/notesId",userAuthentication,userAuthorization,updateNotes)
-router.delete("notes/:userId/notesId",userAuthentication,userAuthorization,deleteNotes)
+router.put("notes/:userId/noteId",userAuthentication,userAuthorization,updateNotes)
+router.delete("notes/:userId/noteId",userAuthentication,userAuthorization,deleteNotes)
 
 //=================================ANOUNCEMENTS API'S==================================================//
 
