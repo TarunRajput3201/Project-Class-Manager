@@ -1,5 +1,6 @@
 const anouncementModel = require("../models/anouncementModel")
 let { validateString, validateRequest } = require("../validator/validations")
+let{uploadFile}=require("../controllers/awsController")
 let createAnouncement = async function (req, res) {
     try {
         let bodyData = req.body

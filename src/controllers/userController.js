@@ -6,6 +6,9 @@ const { validateString,
     validatePassword,
     imageExtValidator, 
     } = require("../validator/validations")
+ let userModel=require("../models/userModel")
+ let bcrypt=require("bcrypt")   
+ let{uploadFile}=require("../controllers/awsController")
 
 let registerUser = async function (req, res) {
     try {
@@ -40,9 +43,11 @@ let registerUser = async function (req, res) {
             if (!imageExtValidator(profile[0].originalname)) { return res.status(400).send({ status: false, message: "only image file is allowed" }) }
             let uploadedFileURL = await uploadFile(profile[0]);
             bodyData.profileImage = uploadedFileURL
-        } else {
-            return res.status(400).send({ status: false, message: "please provide profile image " });
-        }
+     
+    }
+    //  else {
+        //     return res.status(400).send({ status: false, message: "please provide profile image " });
+        // }
 
         let isDuplicateEmail = await userModel.findOne({ email: email })
         if (isDuplicateEmail) { return res.status(400).send({ status: false, message: "this email already exists" }) }
@@ -52,7 +57,7 @@ let registerUser = async function (req, res) {
 
         let newUser = await userModel.create(bodyData)
         newUser = newUser.toObject()
-        delete (newuser.password)
+        delete (newUser.password)
         res.status(201).send({ status: true, message: "user registered successfully", data: newUser })
     }
     catch (err) {

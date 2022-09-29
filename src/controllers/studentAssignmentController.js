@@ -2,6 +2,7 @@ const userModel = require("../models/userModel")
 const studentAssignmentModel = require("../models/studentAssignmentModel")
 const teacherAssignmentModel = require("../models/teacherAssignmentModel")
 let { validateString, validateRequest } = require("../validator/validations")
+let{uploadFile}=require("../controllers/awsController")
 let submitAssignment = async function (req, res) {
     try {
         let bodyData = req.body

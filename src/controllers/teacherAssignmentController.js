@@ -2,7 +2,8 @@ const teacherAssignmentModel = require("../models/teacherAssignmentModel")
 let userModel = require("../models/userModel")
 let { validateString, validateRequest,isValidObjectId } = require("../validator/validations")
 let { uploadFile } = require("../controllers/awsController")
-
+const date = require('date-and-time')
+const moment =require("moment")
 
 let createAssignment = async function (req, res) {
     try {
@@ -11,7 +12,7 @@ let createAssignment = async function (req, res) {
 
         if (!isValidObjectId(userId)) { return res.status(400).send({ status: false, msg: "pleade provide valid id" }) }
         let user = await userModel.findById(userId)
-        if (user.areYouTeacherOrStudent == Student) { return res.status(403).send({ status: false, msg: "students are not authorized to create assignment" }) }
+        if (user.areYouTeacherOrStudent == "Student") { return res.status(403).send({ status: false, msg: "students are not authorized to create assignment" }) }
         let { title, description, deadline } = bodyData
         let dataToBeCreated = {}
         if (validateRequest(bodyData)) { return res.status(400).send({ status: false, message: "please provide the data in the body" }) }
@@ -26,14 +27,20 @@ let createAssignment = async function (req, res) {
         if (file && file.length > 0) {
             let uploadedFileURL = await uploadFile(file[0]);
             dataToBeCreated.uploadFile = uploadedFileURL
-        } else {
-            return res.status(400).send({ status: false, message: "please upload file :file upload is mandatory"  });
-        }
+        } 
+        // else {
+        //     return res.status(400).send({ status: false, message: "please upload file :file upload is mandatory"  });
+        // }
         if (!validateString(deadline)) { return res.status(400).send({ status: false, message: "deadline is required" }) }
-        if (!teacherAssignmentModel.deadline instanceof Date) {
-            return res.status(400).send({ status: false, message: `please provide a valid date format like "2002-12-09T00:00:00.000Z" or "2002-12-09"` })
+        // console.log(!moment(deadline, "YYYY-MM-DD").isValid())
+        if(!(/^\d\d\d\d-(0[1-9]|1[0-2])-(0[1-9]|[1-2]\d|3[0-1])$/.test(deadline))){
+            return res.status(400).send({ status: false, message: "please provide a valid date format like  `2002-12-09` " })
         }
-        else { dataToBeCreated.deadline = deadline }
+        if (!moment(deadline, "YYYY-MM-DD").isValid()) {
+            return res.status(400).send({ status: false, message: "please provide a valid date format like  `2002-12-09` " })
+        }
+        else 
+        { dataToBeCreated.deadline = deadline }
 
         let assignment = await teacherAssignmentModel.create(dataToBeCreated)
 
@@ -71,15 +78,27 @@ let getAssignmentByQuery = async function (req, res) {
           return res.status(400).send({ status: false, message: `You can't filter Using '${value}' ` })
       }
     }
-        let queryObj={isDeleted:false}
+    let queryObj={isDeleted:false}
+    let teacherAssignment=await teacherAssignmentModel.find(queryObj).lean()
+       let teacherAssignment1=teacherAssignment
+    
         if (queryData.hasOwnProperty("title")) {
             if (validateString(title)) {
-              queryObj.title = {$in:{title}}
+              
+              for(let i=0;i< teacherAssignment.length;i++){
+                if(!teacherAssignment1[i].title.includes(title)){
+                     teacherAssignment1.splice(i,1)
+                }
+              }
+                
             }
         }
+         
+
+
         if (queryData.hasOwnProperty("description")) {
             if (validateString(description)) {
-              queryObj.description = {$in:{description}}
+              queryObj.description =description
             }
         }
         if (queryData.hasOwnProperty("userId")) {
@@ -89,11 +108,12 @@ let getAssignmentByQuery = async function (req, res) {
             }
         }
     
-       let teacherAssignment=await teacherAssignmentModel.find(queryObj)
-       res.status(200).send({ status: true, data: teacherAssignment })
+       
+       res.status(200).send({ status: true, data: teacherAssignment1 })
 
     }
     catch (error) {
+        console.log(error)
         return res.status(500).send({ status: false, message: error.message })
     }
 

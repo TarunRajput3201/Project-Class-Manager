@@ -1,6 +1,6 @@
 const notesModel = require("../models/notesModel")
 let { validateString, validateRequest } = require("../validator/validations")
-
+let{uploadFile}=require("../controllers/awsController")
 
 let createNote = async function (req, res) {
     try {
