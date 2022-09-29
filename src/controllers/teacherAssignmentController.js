@@ -1,6 +1,6 @@
 const teacherAssignmentModel = require("../models/teacherAssignmentModel")
 let userModel = require("../models/userModel")
-let { validateString, validateRequest, imageExtValidator } = require("../validator/validations")
+let { validateString, validateRequest } = require("../validator/validations")
 let { uploadFile } = require("../controllers/awsController")
 
 
@@ -24,11 +24,10 @@ let createAssignment = async function (req, res) {
 
         let file = req.files;
         if (file && file.length > 0) {
-            if (!imageExtValidator(file[0].originalname)) { return res.status(400).send({ status: false, message: "only image file is allowed" }) }
             let uploadedFileURL = await uploadFile(file[0]);
             dataToBeCreated.uploadFile = uploadedFileURL
         } else {
-            return res.status(400).send({ status: false, message: "please provide profile image " });
+            return res.status(400).send({ status: false, message: "please upload file :file upload is mandatory"  });
         }
         if (!validateString(deadline)) { return res.status(400).send({ status: false, message: "deadline is required" }) }
         if (!teacherAssignmentModel.deadline instanceof Date) {

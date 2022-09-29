@@ -1,7 +1,7 @@
 const userModel = require("../models/userModel")
 const studentAssignmentModel = require("../models/studentAssignmentModel")
 const teacherAssignmentModel = require("../models/teacherAssignmentModel")
-let { validateString, validateRequest, imageExtValidator } = require("../validator/validations")
+let { validateString, validateRequest } = require("../validator/validations")
 let submitAssignment = async function (req, res) {
     try {
         let bodyData = req.body
@@ -16,11 +16,10 @@ let submitAssignment = async function (req, res) {
         let dataToBeCreated = {}
         let file = req.files;
         if (file && file.length > 0) {
-            if (!imageExtValidator(file[0].originalname)) { return res.status(400).send({ status: false, message: "only image file is allowed" }) }
             let uploadedFileURL = await uploadFile(file[0]);
             dataToBeCreated.uploadFile = uploadedFileURL
         } else {
-            return res.status(400).send({ status: false, message: "please upload file " });
+            return res.status(400).send({ status: false, message:"please upload file :file upload is mandatory"  });
         }
 
         if (validateRequest(bodyData)) { return res.status(400).send({ status: false, message: "please provide the data in the body" }) }
