@@ -107,7 +107,7 @@ let userLogin = async function (req, res) {
 const Updateprofile = async function (req, res) {
     try {
         let userId = req.params.userId
-        if (!mongoose.isValidObjectId(userId)) { return res.status(400).send({ status: false, msg: "pleade provide valid id" }) }
+        if (!isValidObjectId(userId)) { return res.status(400).send({ status: false, msg: "pleade provide valid id" }) }
 
 
         let bodyData = JSON.parse(JSON.stringify(req.body))

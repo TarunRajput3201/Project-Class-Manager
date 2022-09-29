@@ -7,7 +7,7 @@ let createNote = async function (req, res) {
         let bodyData = req.body
         let userId = req.params.userId
 
-        if (!mongoose.isValidObjectId(userId)) { return res.status(400).send({ status: false, msg: "pleade provide valid userId" }) }
+        if (!isValidObjectId(userId)) { return res.status(400).send({ status: false, msg: "pleade provide valid userId" }) }
         let user = await userModel.findById(userId)
         if (user.areYouTeacherOrStudent == Student) { return res.status(403).send({ status: false, msg: "students are not authorized to create assignment" }) }
         let { title, description } = bodyData
@@ -41,7 +41,7 @@ let createNote = async function (req, res) {
 let getNotes = async function (req, res) {
     try {
         let userId = req.params.userId
-        if (!mongoose.isValidObjectId(userId)) { return res.status(400).send({ status: false, msg: "pleade provide valid userId" }) }
+        if (!isValidObjectId(userId)) { return res.status(400).send({ status: false, msg: "pleade provide valid userId" }) }
 
         let notes = await notesModel.find({ userId: userId, isDeleted: false })
         if (assignment.length == 0) { return res.status(404).send({ status: false, msg: "there is no note with this userid or deleted" }) }
@@ -54,6 +54,35 @@ let getNotes = async function (req, res) {
 }
 let getNotesByQuery = async function (req, res) {
     try {
+        let queryData = req.query
+        let {title,description,userId}=queryData
+        getFilter = Object.keys(queryData)
+    if (getFilter.length) {
+      for (let value of getFilter) {
+        if (['title', 'description','userId'].indexOf(value) == -1)
+          return res.status(400).send({ status: false, message: `You can't filter Using '${value}' ` })
+      }
+    }
+        let queryObj={isDeleted:false}
+        if (queryData.hasOwnProperty("title")) {
+            if (validateString(title)) {
+              queryObj.title = {$in:{title}}
+            }
+        }
+        if (queryData.hasOwnProperty("description")) {
+            if (validateString(description)) {
+              queryObj.description = {$in:{description}}
+            }
+        }
+        if (queryData.hasOwnProperty("userId")) {
+            if (validateString(userId)) {
+                if (!isValidObjectId(userId)) { return res.status(400).send({ status: false, msg: "pleade provide valid userid id" }) }
+              queryObj.userId = userId
+            }
+        }
+    
+       let notes=await notesModel.find(queryObj)
+       res.status(200).send({ status: true, data: notes })
 
     }
     catch (error) {
@@ -64,10 +93,10 @@ let getNotesByQuery = async function (req, res) {
 let updateNotes = async function (req, res) {
     try {
         let userId = req.params.userId
-        if (!mongoose.isValidObjectId(userId)) { return res.status(400).send({ status: false, msg: "pleade provide valid userid id" }) }
+        if (!isValidObjectId(userId)) { return res.status(400).send({ status: false, msg: "pleade provide valid userid id" }) }
 
         let noteId = req.params.noteId
-        if (!mongoose.isValidObjectId(noteId)) { return res.status(400).send({ status: false, msg: "pleade provide valid noteid" }) }
+        if (!isValidObjectId(noteId)) { return res.status(400).send({ status: false, msg: "pleade provide valid noteid" }) }
 
         let user = await userModel.findById(userId)
         if (user.areYouTeacherOrStudent == Student) { return res.status(403).send({ status: false, msg: "students are not authorized to update note" }) }
@@ -107,10 +136,10 @@ let updateNotes = async function (req, res) {
 let deleteNotes = async function (req, res) {
     try {
         let userId = req.params.userId
-        if (!mongoose.isValidObjectId(userId)) { return res.status(400).send({ status: false, msg: "pleade provide valid userid id" }) }
+        if (!isValidObjectId(userId)) { return res.status(400).send({ status: false, msg: "pleade provide valid userid id" }) }
 
         let noteId = req.params.noteId
-        if (!mongoose.isValidObjectId(noteId)) { return res.status(400).send({ status: false, msg: "pleade provide valid noteid" }) }
+        if (!isValidObjectId(noteId)) { return res.status(400).send({ status: false, msg: "pleade provide valid noteid" }) }
 
         let user = await userModel.findById(userId)
         if (user.areYouTeacherOrStudent == Student) { return res.status(403).send({ status: false, msg: "students are not authorized to delete note" }) }

@@ -5,7 +5,7 @@ let createAnouncement = async function (req, res) {
         let bodyData = req.body
         let userId = req.params.userId
 
-        if (!mongoose.isValidObjectId(userId)) { return res.status(400).send({ status: false, msg: "pleade provide valid id" }) }
+        if (!isValidObjectId(userId)) { return res.status(400).send({ status: false, msg: "pleade provide valid id" }) }
         let user = await userModel.findById(userId)
         if (user.areYouTeacherOrStudent == Student) { return res.status(403).send({ status: false, msg: "students are not authorized to create assignment" }) }
         let { title, description, date } = bodyData
@@ -25,7 +25,7 @@ let createAnouncement = async function (req, res) {
         } else {
             return res.status(400).send({ status: false, message: "please upload file :file upload is mandatory"  });
         }
-        if (!validateString(deadline)) { return res.status(400).send({ status: false, message: "deadline is required" }) }
+        if (!validateString(date)) { return res.status(400).send({ status: false, message: "deadline is required" }) }
         if (!anouncementModel.date instanceof Date) {
             return res.status(400).send({ status: false, message: `please provide a valid date format like "2002-12-09T00:00:00.000Z" or "2002-12-09"` })
         }
@@ -43,7 +43,7 @@ let createAnouncement = async function (req, res) {
 let getAnouncements = async function (req, res) {
     try {
         let userId = req.params.userId
-        if (!mongoose.isValidObjectId(userId)) { return res.status(400).send({ status: false, msg: "pleade provide valid id" }) }
+        if (!isValidObjectId(userId)) { return res.status(400).send({ status: false, msg: "pleade provide valid id" }) }
 
         let anouncements = await anouncementModel.find({ userId: userId, isDeleted: false })
         if (anouncements.length == 0) { return res.status(404).send({ status: false, msg: "there is no assignment with this userid or deleted" }) }
@@ -56,6 +56,43 @@ let getAnouncements = async function (req, res) {
 }
 let getAnouncementsByQuery = async function (req, res) {
     try {
+        let queryData = req.query
+        let {title,description,userId,date}=queryData
+        getFilter = Object.keys(queryData)
+    if (getFilter.length) {
+      for (let value of getFilter) {
+        if (['title', 'description','userId','date'].indexOf(value) == -1)
+          return res.status(400).send({ status: false, message: `You can't filter Using '${value}' ` })
+      }
+    }
+        let queryObj={isDeleted:false}
+        if (queryData.hasOwnProperty("title")) {
+            if (validateString(title)) {
+              queryObj.title = {$in:{title}}
+            }
+        }
+        if (queryData.hasOwnProperty("description")) {
+            if (validateString(description)) {
+              queryObj.description = {$in:{description}}
+            }
+        }
+        if (queryData.hasOwnProperty("userId")) {
+            if (validateString(userId)) {
+                if (!isValidObjectId(userId)) { return res.status(400).send({ status: false, msg: "pleade provide valid userid id" }) }
+              queryObj.userId = userId
+            }
+        }
+        if (queryData.hasOwnProperty("date")) {
+            if (validateString(date)) {
+                if (!anouncementModel.date instanceof Date) {
+                    return res.status(400).send({ status: false, message: `please provide a valid date format like "2002-12-09T00:00:00.000Z" or "2002-12-09"` })
+                }
+                queryObj.date = date
+            }
+        }
+    
+       let anouncements=await anouncementModel.find(queryObj)
+       res.status(200).send({ status: true, data: anouncements })
 
     }
     catch (error) {
@@ -66,10 +103,10 @@ let getAnouncementsByQuery = async function (req, res) {
 let updateAnouncement = async function (req, res) {
     try {
         let userId = req.params.userId
-        if (!mongoose.isValidObjectId(userId)) { return res.status(400).send({ status: false, msg: "pleade provide valid userid id" }) }
+        if (!isValidObjectId(userId)) { return res.status(400).send({ status: false, msg: "pleade provide valid userid id" }) }
 
         let anouncementId = req.params.anouncementId
-        if (!mongoose.isValidObjectId(anouncementId)) { return res.status(400).send({ status: false, msg: "pleade provide valid anouncementId" }) }
+        if (!isValidObjectId(anouncementId)) { return res.status(400).send({ status: false, msg: "pleade provide valid anouncementId" }) }
 
         let user = await userModel.findById(userId)
         if (user.areYouTeacherOrStudent == Student) { return res.status(403).send({ status: false, msg: "students are not authorized to create assignment" }) }
@@ -81,7 +118,7 @@ let updateAnouncement = async function (req, res) {
 
         if (bodyData.hasOwnProperty("title")) {
             if (validateString(title)) {
-
+               
                 anouncement.title = title
             }
         }
@@ -118,10 +155,10 @@ let updateAnouncement = async function (req, res) {
 let deleteAnouncement = async function (req, res) {
     try {
         let userId = req.params.userId
-        if (!mongoose.isValidObjectId(userId)) { return res.status(400).send({ status: false, msg: "pleade provide valid userid id" }) }
+        if (!isValidObjectId(userId)) { return res.status(400).send({ status: false, msg: "pleade provide valid userid id" }) }
 
         let anouncementId = req.params.anouncementId
-        if (!mongoose.isValidObjectId(anouncementId)) { return res.status(400).send({ status: false, msg: "pleade provide valid anouncementId" }) }
+        if (!isValidObjectId(anouncementId)) { return res.status(400).send({ status: false, msg: "pleade provide valid anouncementId" }) }
 
         let user = await userModel.findById(userId)
         if (user.areYouTeacherOrStudent == Student) { return res.status(403).send({ status: false, msg: "students are not authorized to create assignment" }) }

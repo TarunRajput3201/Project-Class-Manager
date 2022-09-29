@@ -8,8 +8,8 @@ let submitAssignment = async function (req, res) {
         let userId = req.params.userId
         let assignmentId = req.params.assignmentId
 
-        if (!mongoose.isValidObjectId(userId)) { return res.status(400).send({ status: false, msg: "pleade provide valid user id" }) }
-        if (!mongoose.isValidObjectId(assignmentId)) { return res.status(400).send({ status: false, msg: "pleade provide valid assignment id" }) }
+        if (!isValidObjectId(userId)) { return res.status(400).send({ status: false, msg: "pleade provide valid user id" }) }
+        if (!isValidObjectId(assignmentId)) { return res.status(400).send({ status: false, msg: "pleade provide valid assignment id" }) }
         let assignment = await teacherAssignmentModel.findOne({ _id: assignmentId, isDeleted: false })
         if (!assignment) { return res.status(404).send({ status: false, msg: "there is no assignment with this teacher assignmentId" }) }
         let { comment, dateOfSubmission } = bodyData
@@ -56,7 +56,7 @@ let submitAssignment = async function (req, res) {
 let getSubmittedAssignments = async function (req, res) {
     try {
         let userId = req.params.userId
-        if (!mongoose.isValidObjectId(userId)) { return res.status(400).send({ status: false, msg: "pleade provide valid user id" }) }
+        if (!isValidObjectId(userId)) { return res.status(400).send({ status: false, msg: "pleade provide valid user id" }) }
         let assignments = await studentAssignmentModel.find({ _id: userId })
         if (assignments.length == 0) { return res.status(404).send({ status: false, msg: "there is no assignment submitted with this userId" }) }
         res.status(200).send({ status: true, msg: "submitted assignments", data: assignments })
@@ -73,8 +73,8 @@ let getAllStudentAssignments = async function (req, res) {
         let userId = req.params.userId
         let assignmentId = req.params.assignmentId
 
-        if (!mongoose.isValidObjectId(userId)) { return res.status(400).send({ status: false, msg: "pleade provide valid user id" }) }
-        if (!mongoose.isValidObjectId(assignmentId)) { return res.status(400).send({ status: false, msg: "pleade provide valid assignment id" }) }
+        if (!isValidObjectId(userId)) { return res.status(400).send({ status: false, msg: "pleade provide valid user id" }) }
+        if (!isValidObjectId(assignmentId)) { return res.status(400).send({ status: false, msg: "pleade provide valid assignment id" }) }
 
         let user = await userModel.findById(userId)
         if (user.areYouTeacherOrStudent == Student) { return res.status(403).send({ status: false, msg: "students are not authorized to get all student assignments" }) }
@@ -91,8 +91,8 @@ let updateSubmittedAssignment = async function (req, res) {
         let userId = req.params.userId
         let assignmentId = req.params.studentAssignmentId
 
-        if (!mongoose.isValidObjectId(userId)) { return res.status(400).send({ status: false, msg: "pleade provide valid user id" }) }
-        if (!mongoose.isValidObjectId(assignmentId)) { return res.status(400).send({ status: false, msg: "pleade provide valid assignment id" }) }
+        if (!isValidObjectId(userId)) { return res.status(400).send({ status: false, msg: "pleade provide valid user id" }) }
+        if (!isValidObjectId(assignmentId)) { return res.status(400).send({ status: false, msg: "pleade provide valid assignment id" }) }
         let { comment, dateOfSubmission } = bodyData
         let assignment = await studentAssignmentModel.findById(studentAssignmentId)
 

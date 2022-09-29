@@ -116,5 +116,6 @@ module.exports = { validateString,
   regexPhoneNumber,
   regxName,
   validatePassword,
-  imageExtValidator, 
+  imageExtValidator,
+  isValidObjectId 
   };

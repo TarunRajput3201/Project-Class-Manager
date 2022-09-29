@@ -1,6 +1,6 @@
 const teacherAssignmentModel = require("../models/teacherAssignmentModel")
 let userModel = require("../models/userModel")
-let { validateString, validateRequest } = require("../validator/validations")
+let { validateString, validateRequest,isValidObjectId } = require("../validator/validations")
 let { uploadFile } = require("../controllers/awsController")
 
 
@@ -9,7 +9,7 @@ let createAssignment = async function (req, res) {
         let bodyData = req.body
         let userId = req.params.userId
 
-        if (!mongoose.isValidObjectId(userId)) { return res.status(400).send({ status: false, msg: "pleade provide valid id" }) }
+        if (!isValidObjectId(userId)) { return res.status(400).send({ status: false, msg: "pleade provide valid id" }) }
         let user = await userModel.findById(userId)
         if (user.areYouTeacherOrStudent == Student) { return res.status(403).send({ status: false, msg: "students are not authorized to create assignment" }) }
         let { title, description, deadline } = bodyData
@@ -49,7 +49,7 @@ let createAssignment = async function (req, res) {
 let getAssignment = async function (req, res) {
     try {
         let userId = req.params.userId
-        if (!mongoose.isValidObjectId(userId)) { return res.status(400).send({ status: false, msg: "pleade provide valid id" }) }
+        if (!isValidObjectId(userId)) { return res.status(400).send({ status: false, msg: "pleade provide valid id" }) }
 
         let assignment = await teacherAssignmentModel.find({ userId: userId, isDeleted: false })
         if (assignment.length == 0) { return res.status(404).send({ status: false, msg: "there is no assignment with this userid or deleted" }) }
@@ -60,15 +60,52 @@ let getAssignment = async function (req, res) {
     }
 }
 
+let getAssignmentByQuery = async function (req, res) {
+    try {
+        let queryData = req.query
+        let {title,description,userId}=queryData
+        getFilter = Object.keys(queryData)
+    if (getFilter.length) {
+      for (let value of getFilter) {
+        if (['title', 'description','userId'].indexOf(value) == -1)
+          return res.status(400).send({ status: false, message: `You can't filter Using '${value}' ` })
+      }
+    }
+        let queryObj={isDeleted:false}
+        if (queryData.hasOwnProperty("title")) {
+            if (validateString(title)) {
+              queryObj.title = {$in:{title}}
+            }
+        }
+        if (queryData.hasOwnProperty("description")) {
+            if (validateString(description)) {
+              queryObj.description = {$in:{description}}
+            }
+        }
+        if (queryData.hasOwnProperty("userId")) {
+            if (validateString(userId)) {
+                if (!isValidObjectId(userId)) { return res.status(400).send({ status: false, msg: "pleade provide valid userid id" }) }
+              queryObj.userId = userId
+            }
+        }
+    
+       let teacherAssignment=await teacherAssignmentModel.find(queryObj)
+       res.status(200).send({ status: true, data: teacherAssignment })
 
+    }
+    catch (error) {
+        return res.status(500).send({ status: false, message: error.message })
+    }
+
+}
 
 let updateAssignment = async function (req, res) {
     try {
         let userId = req.params.userId
-        if (!mongoose.isValidObjectId(userId)) { return res.status(400).send({ status: false, msg: "pleade provide valid userid id" }) }
+        if (!isValidObjectId(userId)) { return res.status(400).send({ status: false, msg: "pleade provide valid userid id" }) }
 
         let assignmentId = req.params.assignmentId
-        if (!mongoose.isValidObjectId(assignmentId)) { return res.status(400).send({ status: false, msg: "pleade provide valid assignment id" }) }
+        if (!isValidObjectId(assignmentId)) { return res.status(400).send({ status: false, msg: "pleade provide valid assignment id" }) }
 
         let user = await userModel.findById(userId)
         if (user.areYouTeacherOrStudent == Student) { return res.status(403).send({ status: false, msg: "students are not authorized to create assignment" }) }
@@ -118,10 +155,10 @@ let updateAssignment = async function (req, res) {
 let deleteAssignment = async function (req, res) {
     try {
         let userId = req.params.userId
-        if (!mongoose.isValidObjectId(userId)) { return res.status(400).send({ status: false, msg: "pleade provide valid userid id" }) }
+        if (!isValidObjectId(userId)) { return res.status(400).send({ status: false, msg: "pleade provide valid userid id" }) }
 
         let assignmentId = req.params.assignmentId
-        if (!mongoose.isValidObjectId(assignmentId)) { return res.status(400).send({ status: false, msg: "pleade provide valid assignment id" }) }
+        if (!isValidObjectId(assignmentId)) { return res.status(400).send({ status: false, msg: "pleade provide valid assignment id" }) }
 
         let user = await userModel.findById(userId)
         if (user.areYouTeacherOrStudent == Student) { return res.status(403).send({ status: false, msg: "students are not authorized to create assignment" }) }
@@ -141,4 +178,4 @@ let deleteAssignment = async function (req, res) {
 
 
 
-module.exports = { createAssignment, getAssignment, updateAssignment, deleteAssignment }
+module.exports = { createAssignment, getAssignment, getAssignmentByQuery,updateAssignment, deleteAssignment }
