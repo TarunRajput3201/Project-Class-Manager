@@ -4,7 +4,7 @@
 Project-Class-Manager is a platform for teacher and students where teachers can create assignments and assign them to the students and teachers can post notes and anouncements for Students.Students can submit their assignments within deadlines and can get their submitted assignments.
 
 ## DETAILS
-This project consists of 5 parts:
+This project consists of 22 API'S in 5 parts:
 
 ### 1. User Registration:
 In this part users register themselves and get login.After login they can update their profiles after authentication through token.
