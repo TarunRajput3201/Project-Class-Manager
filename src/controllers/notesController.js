@@ -1,7 +1,7 @@
 const notesModel = require("../models/notesModel")
-let userModel=require("../models/userModel")
-let { validateString, validateRequest,isValidObjectId } = require("../validator/validations")
-let{uploadFile}=require("../controllers/awsController")
+let userModel = require("../models/userModel")
+let { validateString, validateRequest, isValidObjectId } = require("../validator/validations")
+let { uploadFile } = require("../controllers/awsController")
 
 let createNote = async function (req, res) {
     try {
@@ -56,40 +56,40 @@ let getNotes = async function (req, res) {
 let getNotesByQuery = async function (req, res) {
     try {
         let queryData = req.query
-        let {title,description,userId}=queryData
+        let { title, description, userId } = queryData
         getFilter = Object.keys(queryData)
-    if (getFilter.length) {
-      for (let value of getFilter) {
-        if (['title', 'description','userId'].indexOf(value) == -1)
-          return res.status(400).send({ status: false, message: `You can't filter Using '${value}' ` })
-      }
-    }
-        let queryObj={isDeleted:false}
-        let notes=await notesModel.find(queryObj).lean()
-       
-         if (queryData.hasOwnProperty("title")) {
-             if (validateString(title)) {
-             
-               notes=notes.filter(notes1=>notes1.title.includes(title)).map(assign=>assign)
-             }
-         }
-       
- 
- 
-         if (queryData.hasOwnProperty("description")) {
-             if (validateString(description)) {
-                notes=notes.filter(notes1=>notes1.description.includes(description)).map(assign=>assign)
-             }
-         }
-         if (queryData.hasOwnProperty("userId")) {
-             if (validateString(userId)) {
-                 if (!isValidObjectId(userId)) { return res.status(400).send({ status: false, msg: "pleade provide valid userid id" }) }
-                 notes=notes.filter(notes1=>notes1.userId==userId).map(assign=>assign)
-             }
-         }
-    
-      
-       res.status(200).send({ status: true, data: notes })
+        if (getFilter.length) {
+            for (let value of getFilter) {
+                if (['title', 'description', 'userId'].indexOf(value) == -1)
+                    return res.status(400).send({ status: false, message: `You can't filter Using '${value}' ` })
+            }
+        }
+        let queryObj = { isDeleted: false }
+        let notes = await notesModel.find(queryObj).lean()
+
+        if (queryData.hasOwnProperty("title")) {
+            if (validateString(title)) {
+
+                notes = notes.filter(notes1 => notes1.title.includes(title)).map(assign => assign)
+            }
+        }
+
+
+
+        if (queryData.hasOwnProperty("description")) {
+            if (validateString(description)) {
+                notes = notes.filter(notes1 => notes1.description.includes(description)).map(assign => assign)
+            }
+        }
+        if (queryData.hasOwnProperty("userId")) {
+            if (validateString(userId)) {
+                if (!isValidObjectId(userId)) { return res.status(400).send({ status: false, msg: "pleade provide valid userid id" }) }
+                notes = notes.filter(notes1 => notes1.userId == userId).map(assign => assign)
+            }
+        }
+
+
+        res.status(200).send({ status: true, data: notes })
 
     }
     catch (error) {

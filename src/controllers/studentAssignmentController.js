@@ -1,8 +1,8 @@
 const userModel = require("../models/userModel")
 const studentAssignmentModel = require("../models/studentAssignmentModel")
 const teacherAssignmentModel = require("../models/teacherAssignmentModel")
-let { validateString, validateRequest,isValidObjectId} = require("../validator/validations")
-let{uploadFile}=require("../controllers/awsController")
+let { validateString, validateRequest, isValidObjectId } = require("../validator/validations")
+let { uploadFile } = require("../controllers/awsController")
 let submitAssignment = async function (req, res) {
     try {
         let bodyData = req.body
@@ -19,7 +19,7 @@ let submitAssignment = async function (req, res) {
         if (file && file.length > 0) {
             let uploadedFileURL = await uploadFile(file[0]);
             dataToBeCreated.uploadFile = uploadedFileURL
-        } 
+        }
         // else {
         //     return res.status(400).send({ status: false, message:"please upload file :file upload is mandatory"  });
         // }
@@ -27,7 +27,7 @@ let submitAssignment = async function (req, res) {
         if (validateRequest(bodyData)) { return res.status(400).send({ status: false, message: "please provide the data in the body" }) }
 
 
-         {
+        {
             if (validateString(comment)) {
                 dataToBeCreated.comment = comment
             }
@@ -40,11 +40,11 @@ let submitAssignment = async function (req, res) {
         dataToBeCreated.assignmentId = assignmentId
 
 
-       dataToBeCreated.dateOfSubmission=new Date
-       dateOfSubmission=Date.now()
-       if(dateOfSubmission>assignment.deadline){
-        return res.status(400).send({ status: false, message: "deadline is over" })
-       }
+        dataToBeCreated.dateOfSubmission = new Date
+        dateOfSubmission = Date.now()
+        if (dateOfSubmission > assignment.deadline) {
+            return res.status(400).send({ status: false, message: "deadline is over" })
+        }
 
         let assignmentSubmission = await studentAssignmentModel.create(dataToBeCreated)
 
@@ -110,14 +110,14 @@ let updateSubmittedAssignment = async function (req, res) {
                 assignment.comment = comment
             }
         }
-       
 
-                    assignment.dateOfSubmission = new Date
-                    dateOfSubmission=Date.now()
-       if(dateOfSubmission>assignment.deadline){
-        return res.status(400).send({ status: false, message: "deadline is over" })
-       }
-                
+
+        assignment.dateOfSubmission = new Date
+        dateOfSubmission = Date.now()
+        if (dateOfSubmission > assignment.deadline) {
+            return res.status(400).send({ status: false, message: "deadline is over" })
+        }
+
         assignment.save()
         res.status(200).send({ status: true, msg: "data updated successfully", data: assignment })
     }

@@ -4,15 +4,6 @@ const regxName = function (val) {
   return regx.test(val);
 }
 
-//=====================================VALIDATING TYPE NUMBER=============================================//
-
-const validateNumber = function validateNumber(value) {
-  if (typeof value == "number") {
-    return true;
-  }
-  return false;
-};
-
 //=======================================VALIDATING EMPTY STRING============================================//
 
 const validateString = function (name) {
@@ -56,14 +47,6 @@ let isValidObjectId = function (ObjectId) {
   return mongoose.isValidObjectId(ObjectId)
 }
 
-//===============================VALIDATING PASSWORD LENGTH=================================================//
-
-
-const passwordLength = function (password) {
-  if (password.length >= 8 && password.length <= 15) {
-    return true;
-  } else return false;
-};
 
 //====================================VALIDATING PHONE NUMBER==================================================//
 
@@ -71,20 +54,6 @@ const passwordLength = function (password) {
 const regexPhoneNumber = function (val) {
   let regx = /^(?:(?:\+|0{0,2})91(\s*|[\-])?|[0]?)?([6789]\d{2}([ -]?)\d{3}([ -]?)\d{4})$/
   return regx.test(val);
-}
-
-//====================================VALIDATING PINCODE==================================================//
-
-
-const isValidPincode = function (val) {
-  return ((typeof val == "number" && val.toString().length == 6) || (typeof val == "string" && val.length == 6))
-}
-
-
-//====================================VALIDATING 0 IN PINCODE==================================================//
-
-const startWithZero = function (val) {
-  return (typeof val == "number" && (val.toString())[0] == "0") || (typeof val == "string" && val[0] == "0")
 }
 
 //====================================VALIDATING IMAGE EXTENSION==================================================//
@@ -95,27 +64,13 @@ const imageExtValidator = function (val) {
   return regex.test(val)
 }
 
-//====================================VALIDATING WHOLE NUMBER==================================================//
-
-
-function onlyWholeNumbers(str) {
-  return /^[0-9]+$/.test(str);
-}
-
-//====================================VALIDATING DECIMAL NUMBERS==================================================//
-
-
-function decNumbers(str) {
-  return /^[0-9.]+$/.test(str);
-}
-
-
-module.exports = { validateString,
+module.exports = {
+  validateString,
   validateRequest,
   validateEmail,
   regexPhoneNumber,
   regxName,
   validatePassword,
   imageExtValidator,
-  isValidObjectId 
-  };
+  isValidObjectId
+};

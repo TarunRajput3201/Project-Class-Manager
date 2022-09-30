@@ -1,8 +1,8 @@
 const anouncementModel = require("../models/anouncementModel")
-let userModel=require("../models/userModel")
-let { validateString, validateRequest,isValidObjectId } = require("../validator/validations")
-let{uploadFile}=require("../controllers/awsController")
-let moment=require("moment")
+let userModel = require("../models/userModel")
+let { validateString, validateRequest, isValidObjectId } = require("../validator/validations")
+let { uploadFile } = require("../controllers/awsController")
+let moment = require("moment")
 let createAnouncement = async function (req, res) {
     try {
         let bodyData = req.body
@@ -25,7 +25,7 @@ let createAnouncement = async function (req, res) {
         if (file && file.length > 0) {
             let uploadedFileURL = await uploadFile(file[0]);
             dataToBeCreated.uploadFile = uploadedFileURL
-        } 
+        }
         // else {
         //     return res.status(400).send({ status: false, message: "please upload file :file upload is mandatory"  });
         // }
@@ -57,40 +57,40 @@ let getAnouncements = async function (req, res) {
 let getAnouncementsByQuery = async function (req, res) {
     try {
         let queryData = req.query
-        let {title,description,userId}=queryData
+        let { title, description, userId } = queryData
         getFilter = Object.keys(queryData)
-    if (getFilter.length) {
-      for (let value of getFilter) {
-        if (['title', 'description','userId'].indexOf(value) == -1)
-          return res.status(400).send({ status: false, message: `You can't filter Using '${value}' ` })
-      }
-    }
-        let queryObj={isDeleted:false}
-        let anouncements=await anouncementModel.find(queryObj).lean()
-       
-         if (queryData.hasOwnProperty("title")) {
-             if (validateString(title)) {
-             
-                anouncements=anouncements.filter(anouncements=>anouncements.title.includes(title)).map(assign=>assign)
-             }
-         }
-       
- 
- 
-         if (queryData.hasOwnProperty("description")) {
-             if (validateString(description)) {
-                anouncements=anouncements.filter(anouncements=>anouncements.description.includes(description)).map(assign=>assign)
-             }
-         }
-         if (queryData.hasOwnProperty("userId")) {
-             if (validateString(userId)) {
-                 if (!isValidObjectId(userId)) { return res.status(400).send({ status: false, msg: "pleade provide valid userid id" }) }
-                 anouncements=anouncements.filter(anouncements=>anouncements.userId==userId).map(assign=>assign)
-             }
-         }
-         
-    
-       res.status(200).send({ status: true, data: anouncements })
+        if (getFilter.length) {
+            for (let value of getFilter) {
+                if (['title', 'description', 'userId'].indexOf(value) == -1)
+                    return res.status(400).send({ status: false, message: `You can't filter Using '${value}' ` })
+            }
+        }
+        let queryObj = { isDeleted: false }
+        let anouncements = await anouncementModel.find(queryObj).lean()
+
+        if (queryData.hasOwnProperty("title")) {
+            if (validateString(title)) {
+
+                anouncements = anouncements.filter(anouncements => anouncements.title.includes(title)).map(assign => assign)
+            }
+        }
+
+
+
+        if (queryData.hasOwnProperty("description")) {
+            if (validateString(description)) {
+                anouncements = anouncements.filter(anouncements => anouncements.description.includes(description)).map(assign => assign)
+            }
+        }
+        if (queryData.hasOwnProperty("userId")) {
+            if (validateString(userId)) {
+                if (!isValidObjectId(userId)) { return res.status(400).send({ status: false, msg: "pleade provide valid userid id" }) }
+                anouncements = anouncements.filter(anouncements => anouncements.userId == userId).map(assign => assign)
+            }
+        }
+
+
+        res.status(200).send({ status: true, data: anouncements })
 
     }
     catch (error) {
@@ -116,7 +116,7 @@ let updateAnouncement = async function (req, res) {
 
         if (bodyData.hasOwnProperty("title")) {
             if (validateString(title)) {
-               
+
                 anouncement.title = title
             }
         }
@@ -132,7 +132,7 @@ let updateAnouncement = async function (req, res) {
             let uploadedFileURL = await uploadFile(file[0]);
             dataToBeCreated.uploadFile = uploadedFileURL
         }
-        anouncement.date=new Date
+        anouncement.date = new Date
         anouncement.save()
         res.status(200).send({ status: true, msg: "data updated successfully", data: anouncement })
 

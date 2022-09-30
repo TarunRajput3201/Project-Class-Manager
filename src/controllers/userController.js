@@ -4,11 +4,11 @@ const { validateString,
     regexPhoneNumber,
     regxName,
     validatePassword,
-    imageExtValidator, 
-    } = require("../validator/validations")
- let userModel=require("../models/userModel")
- let bcrypt=require("bcrypt")   
- let{uploadFile}=require("../controllers/awsController")
+    imageExtValidator,
+} = require("../validator/validations")
+let userModel = require("../models/userModel")
+let bcrypt = require("bcrypt")
+let { uploadFile } = require("../controllers/awsController")
 
 let registerUser = async function (req, res) {
     try {
@@ -43,9 +43,9 @@ let registerUser = async function (req, res) {
             if (!imageExtValidator(profile[0].originalname)) { return res.status(400).send({ status: false, message: "only image file is allowed" }) }
             let uploadedFileURL = await uploadFile(profile[0]);
             bodyData.profileImage = uploadedFileURL
-     
-    }
-    //  else {
+
+        }
+        //  else {
         //     return res.status(400).send({ status: false, message: "please provide profile image " });
         // }
 
