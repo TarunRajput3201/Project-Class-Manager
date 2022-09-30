@@ -1,7 +1,7 @@
 const userModel = require("../models/userModel")
 const studentAssignmentModel = require("../models/studentAssignmentModel")
 const teacherAssignmentModel = require("../models/teacherAssignmentModel")
-let { validateString, validateRequest } = require("../validator/validations")
+let { validateString, validateRequest,isValidObjectId} = require("../validator/validations")
 let{uploadFile}=require("../controllers/awsController")
 let submitAssignment = async function (req, res) {
     try {
@@ -19,14 +19,15 @@ let submitAssignment = async function (req, res) {
         if (file && file.length > 0) {
             let uploadedFileURL = await uploadFile(file[0]);
             dataToBeCreated.uploadFile = uploadedFileURL
-        } else {
-            return res.status(400).send({ status: false, message:"please upload file :file upload is mandatory"  });
-        }
+        } 
+        // else {
+        //     return res.status(400).send({ status: false, message:"please upload file :file upload is mandatory"  });
+        // }
 
         if (validateRequest(bodyData)) { return res.status(400).send({ status: false, message: "please provide the data in the body" }) }
 
 
-        if (bodyData.hasOwnProperty("comment")) {
+         {
             if (validateString(comment)) {
                 dataToBeCreated.comment = comment
             }
@@ -39,11 +40,11 @@ let submitAssignment = async function (req, res) {
         dataToBeCreated.assignmentId = assignmentId
 
 
-        if (!validateString(dateOfSubmission)) { return res.status(400).send({ status: false, message: "dateOfSubmission is required" }) }
-        if (!studentAssignmentModel.dateOfSubmission instanceof Date) {
-            return res.status(400).send({ status: false, message: `please provide a valid date format like "2002-12-09T00:00:00.000Z" or "2002-12-09"` })
-        }
-        else { dataToBeCreated.dateOfSubmission = dateOfSubmission }
+       dataToBeCreated.dateOfSubmission=new Date
+       dateOfSubmission=Date.now()
+       if(dateOfSubmission>assignment.deadline){
+        return res.status(400).send({ status: false, message: "deadline is over" })
+       }
 
         let assignmentSubmission = await studentAssignmentModel.create(dataToBeCreated)
 
@@ -78,7 +79,7 @@ let getAllStudentAssignments = async function (req, res) {
         if (!isValidObjectId(assignmentId)) { return res.status(400).send({ status: false, msg: "pleade provide valid assignment id" }) }
 
         let user = await userModel.findById(userId)
-        if (user.areYouTeacherOrStudent == Student) { return res.status(403).send({ status: false, msg: "students are not authorized to get all student assignments" }) }
+        if (user.areYouTeacherOrStudent == "Student") { return res.status(403).send({ status: false, msg: "students are not authorized to get all student assignments" }) }
         let studentAssignments = await studentAssignmentModel.find({ assignmentId: assignmentId })
         res.status(200).send({ status: true, msg: "student assignments", data: studentAssignments })
     }
@@ -95,7 +96,7 @@ let updateSubmittedAssignment = async function (req, res) {
         if (!isValidObjectId(userId)) { return res.status(400).send({ status: false, msg: "pleade provide valid user id" }) }
         if (!isValidObjectId(assignmentId)) { return res.status(400).send({ status: false, msg: "pleade provide valid assignment id" }) }
         let { comment, dateOfSubmission } = bodyData
-        let assignment = await studentAssignmentModel.findById(studentAssignmentId)
+        let assignment = await studentAssignmentModel.findById(assignmentId)
 
         let file = req.files;
         if (file && file.length > 0) {
@@ -109,14 +110,14 @@ let updateSubmittedAssignment = async function (req, res) {
                 assignment.comment = comment
             }
         }
-        if (bodyData.hasOwnProperty("dateOfSubmission")) {
-            if (validateString(dateOfSubmission)) {
-                if (studentAssignmentModel.dateOfSubmission instanceof Date) {
+       
 
-                    assignment.dateOfSubmission = dateOfSubmission
-                }
-            }
-        }
+                    assignment.dateOfSubmission = new Date
+                    dateOfSubmission=Date.now()
+       if(dateOfSubmission>assignment.deadline){
+        return res.status(400).send({ status: false, message: "deadline is over" })
+       }
+                
         assignment.save()
         res.status(200).send({ status: true, msg: "data updated successfully", data: assignment })
     }

@@ -1,6 +1,8 @@
 const anouncementModel = require("../models/anouncementModel")
-let { validateString, validateRequest } = require("../validator/validations")
+let userModel=require("../models/userModel")
+let { validateString, validateRequest,isValidObjectId } = require("../validator/validations")
 let{uploadFile}=require("../controllers/awsController")
+let moment=require("moment")
 let createAnouncement = async function (req, res) {
     try {
         let bodyData = req.body
@@ -8,7 +10,7 @@ let createAnouncement = async function (req, res) {
 
         if (!isValidObjectId(userId)) { return res.status(400).send({ status: false, msg: "pleade provide valid id" }) }
         let user = await userModel.findById(userId)
-        if (user.areYouTeacherOrStudent == Student) { return res.status(403).send({ status: false, msg: "students are not authorized to create assignment" }) }
+        if (user.areYouTeacherOrStudent == 'Student') { return res.status(403).send({ status: false, msg: "students are not authorized to create assignment" }) }
         let { title, description, date } = bodyData
         let dataToBeCreated = {}
         if (validateRequest(bodyData)) { return res.status(400).send({ status: false, message: "please provide the data in the body" }) }
@@ -23,14 +25,11 @@ let createAnouncement = async function (req, res) {
         if (file && file.length > 0) {
             let uploadedFileURL = await uploadFile(file[0]);
             dataToBeCreated.uploadFile = uploadedFileURL
-        } else {
-            return res.status(400).send({ status: false, message: "please upload file :file upload is mandatory"  });
-        }
-        if (!validateString(date)) { return res.status(400).send({ status: false, message: "deadline is required" }) }
-        if (!anouncementModel.date instanceof Date) {
-            return res.status(400).send({ status: false, message: `please provide a valid date format like "2002-12-09T00:00:00.000Z" or "2002-12-09"` })
-        }
-        else { dataToBeCreated.date = date }
+        } 
+        // else {
+        //     return res.status(400).send({ status: false, message: "please upload file :file upload is mandatory"  });
+        // }
+        dataToBeCreated.date = new Date
 
         let anouncement = await anouncementModel.create(dataToBeCreated)
 
@@ -58,41 +57,39 @@ let getAnouncements = async function (req, res) {
 let getAnouncementsByQuery = async function (req, res) {
     try {
         let queryData = req.query
-        let {title,description,userId,date}=queryData
+        let {title,description,userId}=queryData
         getFilter = Object.keys(queryData)
     if (getFilter.length) {
       for (let value of getFilter) {
-        if (['title', 'description','userId','date'].indexOf(value) == -1)
+        if (['title', 'description','userId'].indexOf(value) == -1)
           return res.status(400).send({ status: false, message: `You can't filter Using '${value}' ` })
       }
     }
         let queryObj={isDeleted:false}
-        if (queryData.hasOwnProperty("title")) {
-            if (validateString(title)) {
-              queryObj.title = {$in:{title}}
-            }
-        }
-        if (queryData.hasOwnProperty("description")) {
-            if (validateString(description)) {
-              queryObj.description = {$in:{description}}
-            }
-        }
-        if (queryData.hasOwnProperty("userId")) {
-            if (validateString(userId)) {
-                if (!isValidObjectId(userId)) { return res.status(400).send({ status: false, msg: "pleade provide valid userid id" }) }
-              queryObj.userId = userId
-            }
-        }
-        if (queryData.hasOwnProperty("date")) {
-            if (validateString(date)) {
-                if (!anouncementModel.date instanceof Date) {
-                    return res.status(400).send({ status: false, message: `please provide a valid date format like "2002-12-09T00:00:00.000Z" or "2002-12-09"` })
-                }
-                queryObj.date = date
-            }
-        }
+        let anouncements=await anouncementModel.find(queryObj).lean()
+       
+         if (queryData.hasOwnProperty("title")) {
+             if (validateString(title)) {
+             
+                anouncements=anouncements.filter(anouncements=>anouncements.title.includes(title)).map(assign=>assign)
+             }
+         }
+       
+ 
+ 
+         if (queryData.hasOwnProperty("description")) {
+             if (validateString(description)) {
+                anouncements=anouncements.filter(anouncements=>anouncements.description.includes(description)).map(assign=>assign)
+             }
+         }
+         if (queryData.hasOwnProperty("userId")) {
+             if (validateString(userId)) {
+                 if (!isValidObjectId(userId)) { return res.status(400).send({ status: false, msg: "pleade provide valid userid id" }) }
+                 anouncements=anouncements.filter(anouncements=>anouncements.userId==userId).map(assign=>assign)
+             }
+         }
+         
     
-       let anouncements=await anouncementModel.find(queryObj)
        res.status(200).send({ status: true, data: anouncements })
 
     }
@@ -110,7 +107,7 @@ let updateAnouncement = async function (req, res) {
         if (!isValidObjectId(anouncementId)) { return res.status(400).send({ status: false, msg: "pleade provide valid anouncementId" }) }
 
         let user = await userModel.findById(userId)
-        if (user.areYouTeacherOrStudent == Student) { return res.status(403).send({ status: false, msg: "students are not authorized to create assignment" }) }
+        if (user.areYouTeacherOrStudent == "Student") { return res.status(403).send({ status: false, msg: "students are not authorized to create assignment" }) }
 
         let bodyData = req.body
         let { title, description, date } = bodyData
@@ -135,14 +132,7 @@ let updateAnouncement = async function (req, res) {
             let uploadedFileURL = await uploadFile(file[0]);
             dataToBeCreated.uploadFile = uploadedFileURL
         }
-        if (bodyData.hasOwnProperty("date")) {
-            if (validateString(date)) {
-                if (anouncementModel.date instanceof Date) {
-
-                    anouncement.date = date
-                }
-            }
-        }
+        anouncement.date=new Date
         anouncement.save()
         res.status(200).send({ status: true, msg: "data updated successfully", data: anouncement })
 
@@ -162,7 +152,7 @@ let deleteAnouncement = async function (req, res) {
         if (!isValidObjectId(anouncementId)) { return res.status(400).send({ status: false, msg: "pleade provide valid anouncementId" }) }
 
         let user = await userModel.findById(userId)
-        if (user.areYouTeacherOrStudent == Student) { return res.status(403).send({ status: false, msg: "students are not authorized to create assignment" }) }
+        if (user.areYouTeacherOrStudent == "Student") { return res.status(403).send({ status: false, msg: "students are not authorized to create assignment" }) }
 
         let teacherAssignment = await teacherAssignmentModel.findOneAndUpdate({ _id: anouncementId, isDeleted: false }, { $set: { isDeleted: true, deletedAt: new Date } })
         if (!teacherAssignment) { return res.status(403).send({ status: false, msg: "this assignment is already deleted or doesnot exist" }) }

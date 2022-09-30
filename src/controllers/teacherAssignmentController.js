@@ -2,7 +2,6 @@ const teacherAssignmentModel = require("../models/teacherAssignmentModel")
 let userModel = require("../models/userModel")
 let { validateString, validateRequest,isValidObjectId } = require("../validator/validations")
 let { uploadFile } = require("../controllers/awsController")
-const date = require('date-and-time')
 const moment =require("moment")
 
 let createAssignment = async function (req, res) {
@@ -32,7 +31,7 @@ let createAssignment = async function (req, res) {
         //     return res.status(400).send({ status: false, message: "please upload file :file upload is mandatory"  });
         // }
         if (!validateString(deadline)) { return res.status(400).send({ status: false, message: "deadline is required" }) }
-        // console.log(!moment(deadline, "YYYY-MM-DD").isValid())
+        
         if(!(/^\d\d\d\d-(0[1-9]|1[0-2])-(0[1-9]|[1-2]\d|3[0-1])$/.test(deadline))){
             return res.status(400).send({ status: false, message: "please provide a valid date format like  `2002-12-09` " })
         }
@@ -80,36 +79,31 @@ let getAssignmentByQuery = async function (req, res) {
     }
     let queryObj={isDeleted:false}
     let teacherAssignment=await teacherAssignmentModel.find(queryObj).lean()
-       let teacherAssignment1=teacherAssignment
+       
     
         if (queryData.hasOwnProperty("title")) {
             if (validateString(title)) {
-              
-              for(let i=0;i< teacherAssignment.length;i++){
-                if(!teacherAssignment1[i].title.includes(title)){
-                     teacherAssignment1.splice(i,1)
-                }
-              }
-                
+            
+              teacherAssignment=teacherAssignment.filter(assignment=>assignment.title.includes(title)).map(assign=>assign)
             }
         }
-         
+      
 
 
         if (queryData.hasOwnProperty("description")) {
             if (validateString(description)) {
-              queryObj.description =description
+                teacherAssignment=teacherAssignment.filter(assignment=>assignment.description.includes(description)).map(assign=>assign)
             }
         }
         if (queryData.hasOwnProperty("userId")) {
             if (validateString(userId)) {
                 if (!isValidObjectId(userId)) { return res.status(400).send({ status: false, msg: "pleade provide valid userid id" }) }
-              queryObj.userId = userId
+                teacherAssignment=teacherAssignment.filter(assignment=>assignment.userId==userId).map(assign=>assign)
             }
         }
     
        
-       res.status(200).send({ status: true, data: teacherAssignment1 })
+       res.status(200).send({ status: true, data: teacherAssignment })
 
     }
     catch (error) {
@@ -128,7 +122,7 @@ let updateAssignment = async function (req, res) {
         if (!isValidObjectId(assignmentId)) { return res.status(400).send({ status: false, msg: "pleade provide valid assignment id" }) }
 
         let user = await userModel.findById(userId)
-        if (user.areYouTeacherOrStudent == Student) { return res.status(403).send({ status: false, msg: "students are not authorized to create assignment" }) }
+        if (user.areYouTeacherOrStudent == "Student") { return res.status(403).send({ status: false, msg: "students are not authorized to create assignment" }) }
 
         let bodyData = req.body
         let { title, description, deadline } = bodyData
@@ -181,7 +175,7 @@ let deleteAssignment = async function (req, res) {
         if (!isValidObjectId(assignmentId)) { return res.status(400).send({ status: false, msg: "pleade provide valid assignment id" }) }
 
         let user = await userModel.findById(userId)
-        if (user.areYouTeacherOrStudent == Student) { return res.status(403).send({ status: false, msg: "students are not authorized to create assignment" }) }
+        if (user.areYouTeacherOrStudent == "Student") { return res.status(403).send({ status: false, msg: "students are not authorized to create assignment" }) }
 
         let teacherAssignment = await teacherAssignmentModel.findOneAndUpdate({ _id: assignmentId, isDeleted: false }, { $set: { isDeleted: true, deletedAt: new Date } })
         if (!teacherAssignment) { return res.status(403).send({ status: false, msg: "this assignment is already deleted or doesnot exist" }) }

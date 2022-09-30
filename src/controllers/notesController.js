@@ -1,5 +1,6 @@
 const notesModel = require("../models/notesModel")
-let { validateString, validateRequest } = require("../validator/validations")
+let userModel=require("../models/userModel")
+let { validateString, validateRequest,isValidObjectId } = require("../validator/validations")
 let{uploadFile}=require("../controllers/awsController")
 
 let createNote = async function (req, res) {
@@ -9,7 +10,7 @@ let createNote = async function (req, res) {
 
         if (!isValidObjectId(userId)) { return res.status(400).send({ status: false, msg: "pleade provide valid userId" }) }
         let user = await userModel.findById(userId)
-        if (user.areYouTeacherOrStudent == Student) { return res.status(403).send({ status: false, msg: "students are not authorized to create assignment" }) }
+        if (user.areYouTeacherOrStudent == "Student") { return res.status(403).send({ status: false, msg: "students are not authorized to create assignment" }) }
         let { title, description } = bodyData
         let dataToBeCreated = {}
         if (validateRequest(bodyData)) { return res.status(400).send({ status: false, message: "please provide the data in the body" }) }
@@ -64,24 +65,30 @@ let getNotesByQuery = async function (req, res) {
       }
     }
         let queryObj={isDeleted:false}
-        if (queryData.hasOwnProperty("title")) {
-            if (validateString(title)) {
-              queryObj.title = {$in:{title}}
-            }
-        }
-        if (queryData.hasOwnProperty("description")) {
-            if (validateString(description)) {
-              queryObj.description = {$in:{description}}
-            }
-        }
-        if (queryData.hasOwnProperty("userId")) {
-            if (validateString(userId)) {
-                if (!isValidObjectId(userId)) { return res.status(400).send({ status: false, msg: "pleade provide valid userid id" }) }
-              queryObj.userId = userId
-            }
-        }
+        let notes=await notesModel.find(queryObj).lean()
+       
+         if (queryData.hasOwnProperty("title")) {
+             if (validateString(title)) {
+             
+               notes=notes.filter(notes1=>notes1.title.includes(title)).map(assign=>assign)
+             }
+         }
+       
+ 
+ 
+         if (queryData.hasOwnProperty("description")) {
+             if (validateString(description)) {
+                notes=notes.filter(notes1=>notes1.description.includes(description)).map(assign=>assign)
+             }
+         }
+         if (queryData.hasOwnProperty("userId")) {
+             if (validateString(userId)) {
+                 if (!isValidObjectId(userId)) { return res.status(400).send({ status: false, msg: "pleade provide valid userid id" }) }
+                 notes=notes.filter(notes1=>notes1.userId==userId).map(assign=>assign)
+             }
+         }
     
-       let notes=await notesModel.find(queryObj)
+      
        res.status(200).send({ status: true, data: notes })
 
     }
@@ -99,7 +106,7 @@ let updateNotes = async function (req, res) {
         if (!isValidObjectId(noteId)) { return res.status(400).send({ status: false, msg: "pleade provide valid noteid" }) }
 
         let user = await userModel.findById(userId)
-        if (user.areYouTeacherOrStudent == Student) { return res.status(403).send({ status: false, msg: "students are not authorized to update note" }) }
+        if (user.areYouTeacherOrStudent == "Student") { return res.status(403).send({ status: false, msg: "students are not authorized to update note" }) }
 
         let bodyData = req.body
         let { title, description, deadline } = bodyData
@@ -142,7 +149,7 @@ let deleteNotes = async function (req, res) {
         if (!isValidObjectId(noteId)) { return res.status(400).send({ status: false, msg: "pleade provide valid noteid" }) }
 
         let user = await userModel.findById(userId)
-        if (user.areYouTeacherOrStudent == Student) { return res.status(403).send({ status: false, msg: "students are not authorized to delete note" }) }
+        if (user.areYouTeacherOrStudent == "Student") { return res.status(403).send({ status: false, msg: "students are not authorized to delete note" }) }
 
         let note = await teacherAssignmentModel.findOneAndUpdate({ _id: noteId, isDeleted: false }, { $set: { isDeleted: true, deletedAt: new Date } })
         if (!note) { return res.status(403).send({ status: false, msg: "this assignment is already deleted or doesnot exist" }) }
