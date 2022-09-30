@@ -80,7 +80,7 @@ let getAllStudentAssignments = async function (req, res) {
 
         let user = await userModel.findById(userId)
         if (user.areYouTeacherOrStudent == "Student") { return res.status(403).send({ status: false, msg: "students are not authorized to get all student assignments" }) }
-        let studentAssignments = await studentAssignmentModel.find({ assignmentId: assignmentId })
+        let studentAssignments = await studentAssignmentModel.find({ assignmentId: assignmentId }).populate("userId")
         res.status(200).send({ status: true, msg: "student assignments", data: studentAssignments })
     }
     catch (error) {
