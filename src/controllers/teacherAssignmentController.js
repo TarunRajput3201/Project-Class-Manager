@@ -11,7 +11,7 @@ let createAssignment = async function (req, res) {
 
         if (!isValidObjectId(userId)) { return res.status(400).send({ status: false, msg: "pleade provide valid id" }) }
         let user = await userModel.findById(userId)
-        if (user.areYouTeacherOrStudent == "Student") { return res.status(403).send({ status: false, msg: "students are not authorized to create assignment" }) }
+        if (user.registerAs == "Student") { return res.status(403).send({ status: false, msg: "students are not authorized to create assignment" }) }
         let { title, description, deadline } = bodyData
         let dataToBeCreated = {}
         if (validateRequest(bodyData)) { return res.status(400).send({ status: false, message: "please provide the data in the body" }) }
@@ -27,9 +27,9 @@ let createAssignment = async function (req, res) {
             let uploadedFileURL = await uploadFile(file[0]);
             dataToBeCreated.uploadFile = uploadedFileURL
         }
-        // else {
-        //     return res.status(400).send({ status: false, message: "please upload file :file upload is mandatory"  });
-        // }
+        else {
+            return res.status(400).send({ status: false, message: "please upload file :file upload is mandatory"  });
+        }
         if (!validateString(deadline)) { return res.status(400).send({ status: false, message: "deadline is required" }) }
 
         if (!(/^\d\d\d\d-(0[1-9]|1[0-2])-(0[1-9]|[1-2]\d|3[0-1])$/.test(deadline))) {
@@ -121,7 +121,7 @@ let updateAssignment = async function (req, res) {
         if (!isValidObjectId(assignmentId)) { return res.status(400).send({ status: false, msg: "pleade provide valid assignment id" }) }
 
         let user = await userModel.findById(userId)
-        if (user.areYouTeacherOrStudent == "Student") { return res.status(403).send({ status: false, msg: "students are not authorized to create assignment" }) }
+        if (user.registerAs == "Student") { return res.status(403).send({ status: false, msg: "students are not authorized to create assignment" }) }
 
         let bodyData = req.body
         let { title, description, deadline } = bodyData
@@ -174,7 +174,7 @@ let deleteAssignment = async function (req, res) {
         if (!isValidObjectId(assignmentId)) { return res.status(400).send({ status: false, msg: "pleade provide valid assignment id" }) }
 
         let user = await userModel.findById(userId)
-        if (user.areYouTeacherOrStudent == "Student") { return res.status(403).send({ status: false, msg: "students are not authorized to create assignment" }) }
+        if (user.registerAs == "Student") { return res.status(403).send({ status: false, msg: "students are not authorized to create assignment" }) }
 
         let teacherAssignment = await teacherAssignmentModel.findOneAndUpdate({ _id: assignmentId, isDeleted: false }, { $set: { isDeleted: true, deletedAt: new Date } })
         if (!teacherAssignment) { return res.status(403).send({ status: false, msg: "this assignment is already deleted or doesnot exist" }) }

@@ -13,7 +13,7 @@ let { uploadFile } = require("../controllers/awsController")
 let registerUser = async function (req, res) {
     try {
         let bodyData = req.body
-        let { fname, lname, areYouTeacherOrStudent, email, password, phone } = bodyData
+        let { fname, lname, registerAs, email, password, phone } = bodyData
         if (validateRequest(bodyData)) { return res.status(400).send({ status: false, message: "please provide the data in the body" }) }
 
         if (!validateString(fname)) { return res.status(400).send({ status: false, message: "please provide the first name" }) }
@@ -22,8 +22,8 @@ let registerUser = async function (req, res) {
         if (!validateString(lname)) { return res.status(400).send({ status: false, message: "please provide the last name" }) }
         if (!regxName(lname)) { return res.status(400).send({ status: false, message: "please provide a valid last name" }) }
 
-        if (!validateString(areYouTeacherOrStudent)) { return res.status(400).send({ status: false, message: "this field is required" }) }
-        if (!["Teacher", "Student"].includes(areYouTeacherOrStudent)) { return res.status(400).send({ status: false, message: `please provide from ["Teacher","Student"] only` }) }
+        if (!validateString(registerAs)) { return res.status(400).send({ status: false, message: "this field is required" }) }
+        if (!["Teacher", "Student"].includes(registerAs)) { return res.status(400).send({ status: false, message: `please provide from ["Teacher","Student"] only` }) }
 
         if (!validateString(email)) { return res.status(400).send({ status: false, message: "please provide the email" }) }
         if (!validateEmail(email)) { return res.status(400).send({ status: false, message: "please provide a valid email" }) }
@@ -45,9 +45,9 @@ let registerUser = async function (req, res) {
             bodyData.profileImage = uploadedFileURL
 
         }
-        //  else {
-        //     return res.status(400).send({ status: false, message: "please provide profile image " });
-        // }
+         else {
+            return res.status(400).send({ status: false, message: "please provide profile image " });
+        }
 
         let isDuplicateEmail = await userModel.findOne({ email: email })
         if (isDuplicateEmail) { return res.status(400).send({ status: false, message: "this email already exists" }) }
@@ -140,8 +140,8 @@ const Updateprofile = async function (req, res) {
             }
         }
 
-        if (bodyData.hasOwnProperty('areYouTeacherOrStudent')) {
-            if (validateString(areYouTeacherOrStudent)) {
+        if (bodyData.hasOwnProperty('registerAs')) {
+            if (validateString(registerAs)) {
                 return res.status(400).send({ status: false, msg: "this field cannot be changed" })
             }
         }

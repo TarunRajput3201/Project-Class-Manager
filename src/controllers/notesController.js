@@ -10,7 +10,7 @@ let createNote = async function (req, res) {
 
         if (!isValidObjectId(userId)) { return res.status(400).send({ status: false, msg: "pleade provide valid userId" }) }
         let user = await userModel.findById(userId)
-        if (user.areYouTeacherOrStudent == "Student") { return res.status(403).send({ status: false, msg: "students are not authorized to create assignment" }) }
+        if (user.registerAs == "Student") { return res.status(403).send({ status: false, msg: "students are not authorized to create assignment" }) }
         let { title, description } = bodyData
         let dataToBeCreated = {}
         if (validateRequest(bodyData)) { return res.status(400).send({ status: false, message: "please provide the data in the body" }) }
@@ -106,7 +106,7 @@ let updateNotes = async function (req, res) {
         if (!isValidObjectId(noteId)) { return res.status(400).send({ status: false, msg: "pleade provide valid noteid" }) }
 
         let user = await userModel.findById(userId)
-        if (user.areYouTeacherOrStudent == "Student") { return res.status(403).send({ status: false, msg: "students are not authorized to update note" }) }
+        if (user.registerAs == "Student") { return res.status(403).send({ status: false, msg: "students are not authorized to update note" }) }
 
         let bodyData = req.body
         let { title, description, deadline } = bodyData
@@ -149,7 +149,7 @@ let deleteNotes = async function (req, res) {
         if (!isValidObjectId(noteId)) { return res.status(400).send({ status: false, msg: "pleade provide valid noteid" }) }
 
         let user = await userModel.findById(userId)
-        if (user.areYouTeacherOrStudent == "Student") { return res.status(403).send({ status: false, msg: "students are not authorized to delete note" }) }
+        if (user.registerAs == "Student") { return res.status(403).send({ status: false, msg: "students are not authorized to delete note" }) }
 
         let note = await teacherAssignmentModel.findOneAndUpdate({ _id: noteId, isDeleted: false }, { $set: { isDeleted: true, deletedAt: new Date } })
         if (!note) { return res.status(403).send({ status: false, msg: "this assignment is already deleted or doesnot exist" }) }

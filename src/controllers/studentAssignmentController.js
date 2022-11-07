@@ -20,9 +20,9 @@ let submitAssignment = async function (req, res) {
             let uploadedFileURL = await uploadFile(file[0]);
             dataToBeCreated.uploadFile = uploadedFileURL
         }
-        // else {
-        //     return res.status(400).send({ status: false, message:"please upload file :file upload is mandatory"  });
-        // }
+        else {
+            return res.status(400).send({ status: false, message:"please upload file :file upload is mandatory"  });
+        }
 
         if (validateRequest(bodyData)) { return res.status(400).send({ status: false, message: "please provide the data in the body" }) }
 
@@ -79,7 +79,7 @@ let getAllStudentAssignments = async function (req, res) {
         if (!isValidObjectId(assignmentId)) { return res.status(400).send({ status: false, msg: "pleade provide valid assignment id" }) }
 
         let user = await userModel.findById(userId)
-        if (user.areYouTeacherOrStudent == "Student") { return res.status(403).send({ status: false, msg: "students are not authorized to get all student assignments" }) }
+        if (user.registerAs == "Student") { return res.status(403).send({ status: false, msg: "students are not authorized to get all student assignments" }) }
         let studentAssignments = await studentAssignmentModel.find({ assignmentId: assignmentId }).populate("userId")
         res.status(200).send({ status: true, msg: "student assignments", data: studentAssignments })
     }
